@@ -87,3 +87,9 @@ For each repository, the pipeline:
 - The pipeline makes multiple API calls per PR (1 for details + 1 for reviews + 2 for comments), which can be slow for repos with many PRs
 - GitHub API has rate limits: 5,000 requests/hour for authenticated users. For large repos, you may hit this limit.
 - The pipeline fetches all commits from the repo, not just those associated with PRs
+
+## Future Improvements
+
+- [ ] **Rate limiting handling** - Automatically handle GitHub API rate limits for large repos (retry with backoff)
+- [ ] **Progress bar** - Show progress indicator for long-running imports
+- [ ] **Date filters** - Optional flag to only fetch PRs/commits from a specific date range (e.g., last 6 months)
