@@ -19,6 +19,7 @@ from github_api import (
     fetch_pr_reviews,
     fetch_pull_requests,
     fetch_commits,
+    fetch_repository_info,
 )
 from model import GithubCommit, GithubPrComment, GithubPrReview, GithubPullRequest
 
@@ -79,7 +80,7 @@ def parse_pull_requests(
             review_obj = GithubPrReview(
                 github_review_id=review["id"],
                 repository_id=repo_id,
-                state=review["state"],
+                state=review["state"].lower(),  # Convert to lowercase (API returns UPPERCASE, webhooks use lowercase)
                 body=review.get("body"),
                 reviewer_github_id=str(review["user"]["id"]),
                 github_submitted_at=review.get("submitted_at"),
@@ -295,9 +296,11 @@ def run_pipeline(owner: str, repo: str, include_commits: bool = True) -> None:
     supabase = get_supabase_client()
     logger.info("Connected to Supabase")
 
-    # Use owner/repo as repository_id (consistent with webhook handler)
-    repo_id = f"{owner}/{repo}"
-    repo_full_name = f"{owner}/{repo}"
+    # Fetch repository info to get the numeric ID (consistent with webhook handler)
+    repo_info = fetch_repository_info(owner, repo)
+    repo_id = str(repo_info["id"])  # Numeric ID as string, like webhook does
+    repo_full_name = repo_info["full_name"]
+    logger.info(f"Repository ID: {repo_id}, Full name: {repo_full_name}")
 
     # Fetch PRs from GitHub
     logger.info(f"Fetching PRs from GitHub repo {owner}/{repo}")

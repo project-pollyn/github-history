@@ -178,6 +178,26 @@ def fetch_issue_comments(owner: str, repo: str, pr_number: int) -> list[dict]:
     return comments
 
 
+def fetch_repository_info(owner: str, repo: str) -> dict:
+    """
+    Fetch repository information including the numeric ID.
+
+    Args:
+        owner: Repository owner
+        repo: Repository name
+
+    Returns:
+        Repository info dictionary with 'id', 'full_name', etc.
+    """
+    url = f"{BASE_URL}/repos/{owner}/{repo}"
+    headers = _get_headers()
+
+    response = requests.get(url, headers=headers, timeout=30)
+    response.raise_for_status()
+
+    return response.json()
+
+
 def fetch_commits(owner: str, repo: str, since: str = None) -> list[dict]:
     """
     Fetch commits for a repository.
